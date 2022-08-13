@@ -1,0 +1,93 @@
+{% extends 'base.html' %}  
+{% block content %}
+<style>
+  .mycol {
+    columns: 4;
+  }
+</style>
+
+<h3>Archiv</h3>
+
+<label for="search" class="form-label">Suche nach Text in den PDF-Dateien, in der Bemerkung und im Dateinamen:</label>
+<form>
+  <div class="row">
+    {% csrf_token %}
+    <div class="col">
+      <input class="form-control form-control-lg" id="search" name="search" value="{{ search_text }}">
+    </div>
+    <div class="col-auto">
+      <button type="submit" name="submit" value="submit" class="btn btn-lg btn-primary"><i class="bi bi-search"></i>&nbsp;Suchen</button>
+    </div>
+  </div>
+  <nav>
+    <div class="nav nav-tabs mt-2" id="nav-tab" role="tablist">
+      <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Tags</button>
+      <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Status</button>
+      <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="false">Dokumentenart</button>
+    </div>
+  </nav>
+  <div class="tab-content" id="nav-tabContent">
+    <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+      <div class="row">
+      {% for tag in tags %}
+        <div class="col-3 mt-2">
+          <input type="checkbox" name="{{ tag }}" value="1" id="checkbox"
+          {% if tag in checked_tags %}
+          checked
+          {% endif %}
+          >
+          <label for="checkbox">
+            {{ tag }}
+          </label>
+        </div>
+      {% endfor %}
+
+      </div>
+    </div>
+    <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+      {% for stat in status %}
+        <div class="col mt-2 ms-2">
+          <input type="radio" name="radio" id="{{ stat }}">
+          <label for="{{ stat }}">{{ stat }}</label>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">...</div>
+  </div>
+</form>
+
+<div class="row mb-4">
+  <div class="col">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col">Datei</th>
+          <th scope="col">Bemerkung</th>
+          <th scope="col">Tags</th>
+          <th scope="col">Status</th>
+          <th scope="col">Art</th>
+          <!-- <th scope="col"></th> -->
+        </tr>
+      </thead>
+      <tbody>
+        {% for doc in docs %}
+          <form action="{% url 'edit' doc.id %}">
+            <tr>
+              <td><small><a class="text-break" href="{% url 'download' doc.filefolder doc.filename %}">{{ doc.filename }}</a></td>
+              <td>{{ doc.name }}</td>
+              <td>
+                {% for tag in doc.tags.all %}  
+                <span class="badge bg-secondary mt-1">{{ tag }}</span>
+                {% endfor %}  
+              </td>
+              <td>{{ doc.status }}</td>
+              <td>{{ doc.doctype }}</td>
+              <td><div class="text-end"><button type="submit" class="btn btn-secondary btn-sm">Bearbeiten</button></div></td>
+            </tr>
+          </form>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+{% endblock content %}

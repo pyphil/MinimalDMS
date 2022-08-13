@@ -1,0 +1,42 @@
+{% extends 'base.html' %}  
+{% block content %}
+<style>
+  .mycol {
+  columns: 4;
+}
+</style>
+
+<h3>Eigenschaften bearbeiten</h3>
+
+<form method="POST" enctype="multipart/form-data">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <p>
+    <strong>Aktuelle Datei:</strong> {{ filename }}<br>
+    vom {{ date }}
+  </p>
+
+  <p>
+    <strong>Versionen:</strong><br>
+    {% for version in versions %}
+      <p><a href="{% url 'download' version.filefolder version.filename %}">{{ version.filename }}</a> - Version {{ version.version }} - {{ version.date }}</p>
+    {% endfor %}
+  </p>
+  <button type="submit" onclick="spinner()" class="btn btn-primary">Speichern</button>
+</form>
+
+  <div class="spinner-border" style="display: none;">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+
+  <script type="text/javascript">
+    function spinner() {
+        document.getElementsByClassName("spinner-border")[0].style.display = "block";
+    };
+
+    function hide_spinner() {
+        document.getElementsByClassName("spinner-border")[0].style.display = "none";
+    }
+  </script> 
+
+{% endblock content %}
