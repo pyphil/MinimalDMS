@@ -11,7 +11,6 @@
 <label for="search" class="form-label">Suche nach Text in den PDF-Dateien, in der Bemerkung und im Dateinamen:</label>
 <form>
   <div class="row">
-    {% csrf_token %}
     <div class="col">
       <input class="form-control form-control-lg" id="search" name="search" value="{{ search_text }}">
     </div>
@@ -47,7 +46,7 @@
     <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
       {% for stat in status %}
         <div class="col mt-2 ms-2">
-          <input type="radio" name="radio" id="{{ stat }}">
+          <input type="radio" name="status" value="{{ stat }}" id="{{ stat }} ">
           <label for="{{ stat }}">{{ stat }}</label>
         </div>
       {% endfor %}

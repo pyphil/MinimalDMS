@@ -1,57 +1,32 @@
 from django.shortcuts import redirect, render
 import pytesseract
-# from PIL import Image
 from pdf2image import convert_from_path
-import PyPDF2
+from pypdf import PdfReader, PdfWriter
 import io
 from .forms import DocumentForm, DocumentFormEdit
 from .models import Document, Version, Tag, Status, Doctype
 from django.http import FileResponse
 from django.conf import settings
-from PyPDF2 import PdfFileWriter, PdfFileReader
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter
 
 
 def home(request):
-    if request.method == 'GET':
-        f = DocumentForm()
+    f = DocumentForm()
 
-        """ Add text to PDF using PyPDF2 and reportlab
-        packet = io.BytesIO()
-        # create a new PDF with Reportlab
-        can = canvas.Canvas(packet, pagesize=letter)
-        can.drawString(0, 0, "Hello world")
-        can.save()
-
-        # move to the beginning of the StringIO buffer
-        packet.seek(0)
-        new_pdf = PdfFileReader(packet)
-        # read your existing PDF
-        existing_pdf = PdfFileReader(open("searchable.pdf", "rb"))
-        output = PdfFileWriter()
-        # add the "watermark" (which is the new pdf) on the existing page
-        page = existing_pdf.getPage(0)
-        page.mergePage(new_pdf.getPage(0))
-        output.addPage(page)
-        # finally, write "output" to a real file
-        outputStream = open("destination.pdf", "wb")
-        output.write(outputStream)
-        outputStream.close()
-        END """
-
-        return render(request, 'home.html', {'form': f})
     if request.method == 'POST':
         f = DocumentForm(request.POST, request.FILES)
         if f.is_valid():
+            print("save")
             f.save()
+            print("saved")
             instance = f.save(commit=False)
             instance.filename = instance.file.name.split('/')[2]
             instance.filefolder = instance.file.name.split('/')[1]
             text = ocr_scan(instance.file.path)
             instance.text = text
             instance.save()
-        return redirect('/archive/')
+            return redirect('/archive/')
+
+    return render(request, 'home.html', {'form': f})
 
 
 def edit(request, id):
@@ -102,29 +77,29 @@ def edit(request, id):
 
 
 def ocr_scan(filepath):
-    # pytesseract.pytesseract.tesseract_cmd = r'C:\Users\phil\AppData\Local\Tesseract-OCR\tesseract.exe'
-    # text = pytesseract.image_to_string('ocr/Datenschutz.jpg', lang='deu')
-
     # get text from pdf
-    reader = PyPDF2.PdfFileReader(filepath)
-    pageObj = reader.getNumPages()
-    for page_count in range(pageObj):
-        page = reader.getPage(page_count)
-        text = page.extractText()
+    reader = PdfReader(filepath)
+    text = ""
+    contains_images = False
+    for page in reader.pages:
+        text += page.extract_text()
+        if page.images:
+            contains_images = True
+        for image_file_object in page.images:
+            text += pytesseract.image_to_string(image_file_object.image, lang='deu')
 
-    # if only image in pdf, convert to searchable pdf
-    if text == "":
-        images = convert_from_path(filepath, dpi=300)
-        pdf_writer = PyPDF2.PdfFileWriter()
-
+    # if images in pdf, convert to searchable pdf
+    if contains_images:
+        images = convert_from_path(filepath, dpi=300, fmt='tiff')
+        writer = PdfWriter()
         for image in images:
-            text += pytesseract.image_to_string(image, lang='deu')
             page = pytesseract.image_to_pdf_or_hocr(image, extension='pdf')
-            pdf = PyPDF2.PdfFileReader(io.BytesIO(page))
-            pdf_writer.addPage(pdf.getPage(0))
-            # export the searchable PDF to searchable.pdf
-            with open(filepath, "wb") as f:
-                pdf_writer.write(f)
+            pdf = PdfReader(io.BytesIO(page))
+            writer.add_page(pdf.pages[0])
+        # export pdf to same filename as searchable pdf
+        with open(filepath, 'wb') as f:
+            writer.write(f)
+
     return text
 
 
@@ -145,6 +120,8 @@ def archive(request):
             if request.GET.get(i.tag) == "1":
                 docs = docs.filter(tags__tag__icontains=i.tag)
                 checked_tags.append(i)
+        if request.GET.get('status'):
+            docs = docs.filter(status__status=request.GET.get('status'))
         return render(request, 'archive.html', {
             'docs': docs,
             'tags': tags,
