@@ -105,7 +105,7 @@ def ocr_scan(filepath):
 
 def archive(request):
     tags = Tag.objects.all()
-    status = Status.objects.all()
+    status_options = Status.objects.all()
     doctypes = Doctype.objects.all()
     if request.GET.get('submit'):
         search_strings = request.GET.get('search').split(" ")
@@ -120,19 +120,22 @@ def archive(request):
             if request.GET.get(i.tag) == "1":
                 docs = docs.filter(tags__tag__icontains=i.tag)
                 checked_tags.append(i)
+        current_status = None
         if request.GET.get('status'):
-            docs = docs.filter(status__status=request.GET.get('status'))
+            current_status = request.GET.get('status')
+            docs = docs.filter(status__status=current_status)
         return render(request, 'archive.html', {
             'docs': docs,
             'tags': tags,
-            'status': status, 
+            'status_options': status_options,
+            'current_status': current_status,
             'doctypes': doctypes,
             'search_text': request.GET.get('search'),
-            'checked_tags': checked_tags
+            'checked_tags': checked_tags,
             }
         )
     else:
-        return render(request, 'archive.html', {'tags': tags, 'status': status, 'doctypes': doctypes})
+        return render(request, 'archive.html', {'tags': tags, 'status_options': status_options, 'doctypes': doctypes})
 
 
 def download(request, filefolder, filename):

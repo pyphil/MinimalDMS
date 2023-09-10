@@ -44,9 +44,9 @@
       </div>
     </div>
     <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
-      {% for stat in status %}
+      {% for stat in status_options %}
         <div class="col mt-2 ms-2">
-          <input class="form-check-input" type="radio" name="status" value="{{ stat }}" id="{{ stat }} ">
+          <input class="form-check-input" type="radio" name="status" value="{{ stat }}" id="{{ stat }}" {% if stat.status == current_status %}checked{% endif %}>
           <label class="form-check-label" for="{{ stat }}">{{ stat }}</label>
         </div>
       {% endfor %}
