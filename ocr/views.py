@@ -80,25 +80,24 @@ def ocr_scan(filepath):
     # get text from pdf
     reader = PdfReader(filepath)
     text = ""
-    contains_images = False
     for page in reader.pages:
         text += page.extract_text()
-        if page.images:
-            contains_images = True
-        for image_file_object in page.images:
-            text += pytesseract.image_to_string(image_file_object.image, lang='deu')
 
-    # if images in pdf, convert to searchable pdf
-    if contains_images:
-        images = convert_from_path(filepath, dpi=300, fmt='tiff')
-        writer = PdfWriter()
+    # always add complete text from images to text variable as well
+    # if no text in pdf: convert to image and then to searchable pdf
+    images = convert_from_path(filepath, dpi=300, fmt='tiff')
+    writer = PdfWriter()
+    if text == "":
         for image in images:
-            page = pytesseract.image_to_pdf_or_hocr(image, extension='pdf')
+            page = pytesseract.image_to_pdf_or_hocr(image, lang="deu", extension='pdf')
             pdf = PdfReader(io.BytesIO(page))
             writer.add_page(pdf.pages[0])
-        # export pdf to same filename as searchable pdf
-        with open(filepath, 'wb') as f:
-            writer.write(f)
+            # export pdf to same filename as searchable pdf if only image
+            with open(filepath, 'wb') as f:
+                writer.write(f)
+    else:
+        for image in images:
+            text += pytesseract.image_to_string(image, lang="deu")
 
     return text
 
