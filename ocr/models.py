@@ -30,7 +30,7 @@ class Document(models.Model):
     tags = models.ManyToManyField(Tag)
     date = models.DateTimeField(auto_now=True, null=True, blank=True)
     text = models.TextField(null=True, blank=True)
-    file = models.FileField(upload_to="data/" + str(uuid4()))
+    file = models.FileField(upload_to="data/" + str(uuid4()), null=True, blank=True)
     filename = models.CharField(max_length=260, null=True, blank=True)
     filefolder = models.CharField(max_length=36, null=True, blank=True)
 

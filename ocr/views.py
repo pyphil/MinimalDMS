@@ -3,14 +3,20 @@ import pytesseract
 from pdf2image import convert_from_path
 from pypdf import PdfReader, PdfWriter
 import io
-from .forms import DocumentForm, DocumentFormEdit
+from .forms import DocumentForm, DocumentFormEdit, DocumentFormInput
 from .models import Document, Version, Tag, Status, Doctype
 from django.http import FileResponse
 from django.conf import settings
+import os
+import datetime
+import shutil
+from uuid import uuid4
 
 
 def home(request):
     f = DocumentForm()
+
+    inbox_files = get_inbox_files()  
 
     if request.method == 'POST':
         f = DocumentForm(request.POST, request.FILES)
@@ -26,7 +32,30 @@ def home(request):
             instance.save()
             return redirect('/archive/')
 
-    return render(request, 'home.html', {'form': f})
+    return render(request, 'home.html', {'form': f, 'inbox_files': inbox_files})
+
+
+def inbox(request, inbox_file):
+    f = DocumentFormInput()
+
+    if request.method == 'POST':
+        f = DocumentForm(request.POST)
+        if f.is_valid():
+            instance = f.save(commit=False)
+            uuid_dir = str(uuid4())
+            input_path = os.path.join(settings.BASE_DIR, 'inbox', inbox_file)
+            dest_path = os.path.join(settings.MEDIA_ROOT, 'data', uuid_dir)
+            text = ocr_scan(input_path)
+            instance.text = text
+            os.mkdir(dest_path)
+            shutil.move(input_path, dest_path)
+            instance.file = 'data/' + inbox_file
+            instance.filename = inbox_file
+            instance.filefolder = uuid_dir
+            instance.save()
+            return redirect('/archive/')
+
+    return render(request, 'input.html', {'form': f, })
 
 
 def edit(request, id):
@@ -91,6 +120,7 @@ def ocr_scan(filepath):
         for image in images:
             page = pytesseract.image_to_pdf_or_hocr(image, lang="deu", extension='pdf')
             pdf = PdfReader(io.BytesIO(page))
+            text += pytesseract.image_to_string(image, lang="deu")
             writer.add_page(pdf.pages[0])
             # export pdf to same filename as searchable pdf if only image
             with open(filepath, 'wb') as f:
@@ -135,6 +165,38 @@ def archive(request):
         )
     else:
         return render(request, 'archive.html', {'tags': tags, 'status_options': status_options, 'doctypes': doctypes})
+
+
+def get_inbox_files():
+    # Define the directory path
+    directory_path = 'inbox'
+
+    # Initialize a list to store file information
+    file_list = []
+
+    # Check if the directory exists
+    if os.path.exists(directory_path) and os.path.isdir(directory_path):
+        # List all files in the directory
+        files = os.listdir(directory_path)
+
+        # Loop through the files and gather information
+        for file_name in files:
+            file_path = os.path.join(directory_path, file_name)
+
+            # Check if the path is a file (not a directory)
+            if os.path.isfile(file_path):
+                # Get file creation time (you can also use other attributes like modification time)
+                creation_time = os.path.getctime(file_path)
+
+                # Append file information to the list
+                file_list.append({
+                    'filename': file_name,
+                    'creation_time': datetime.datetime.fromtimestamp(creation_time),
+                })
+
+    # Render the template and pass the file_list data to it
+    return file_list
+
 
 
 def download(request, filefolder, filename):

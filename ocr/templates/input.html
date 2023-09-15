@@ -8,12 +8,7 @@
 
 <h3>Inbox</h3>
 
-{% for file in inbox_files %}
-  <p>Filename: {{ file.filename }}</p>
-  <p>Creation Date: {{ file.creation_time }}</p>
-{% endfor %}
-
-<form method="POST" enctype="multipart/form-data">
+<form method="POST">
   {% csrf_token %}
   {{ form.as_p }}
   <button type="submit" onclick="spinner()" class="btn btn-primary">Speichern</button>
