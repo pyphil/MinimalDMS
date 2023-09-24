@@ -1,0 +1,103 @@
+{% extends 'base.html' %}  
+{% block content %}
+<style>
+  .mycol {
+  columns: 4;
+}
+</style>
+
+<h3>Tags</h3>
+
+<table class="table" style="width: 500px;">
+  <thead>
+    <th>Tag</th>
+    <th>Zugeordnete Dokumente</th>
+    <th></th>
+  </thead>
+{% for tag in tags %}
+  <tr>
+    <td>{{ tag }}</td>
+    <td>{{ tag.get_number_of_items }}</td>
+    <td>
+    <button class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#editModal{{ tag.id }}"><i class="bi bi-pencil-fill"></i></button>
+    {% if tag.get_number_of_items == 0 %}
+      <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ tag.id }}"><i class="bi bi-x-lg"></i></button>
+    {% else %}
+      <button class="btn btn-secondary btn-sm" disabled><i class="bi bi-x-lg"></i></button>
+    {% endif %}
+    </td>
+
+    </tr>
+{% endfor %}
+</table>
+
+<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newModal">+ Hinzufügen</button>
+
+
+
+<form method="post">
+{% csrf_token %}
+  <div class="modal" id="newModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Neuen Tag erstellen</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          {{ new_form.as_p }}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button class="btn btn-primary" name="save_new" value="save_new">Speichern</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+
+{% for form in forms %}
+<form method="post">
+{% csrf_token %}
+  <div class="modal" id="editModal{{ form.instance.id }}" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Tag ändern</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          {{ form.as_p }}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button class="btn btn-primary" name="save_edited" value="{{ form.instance.id }}">Speichern</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+<form method="post">
+{% csrf_token %}
+  <div class="modal" id="deleteModal{{ form.instance.id }}" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Tag löschen</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Soll der Tag <strong>{{ form.instance.tag }}</strong> wirklich gelöscht werden? Dies ist nur möglich, wenn dem Tag keine Dateien mehr zugeordnet sind.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button class="btn btn-danger" name="delete" value="{{ form.instance.id }}">Löschen</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+{% endfor %}
+
+{% endblock content %}

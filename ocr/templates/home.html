@@ -8,11 +8,6 @@
 
 <h3>Inbox</h3>
 
-{% for file in inbox_files %}
-  <p>Filename: {{ file.filename }}</p>
-  <p>Creation Date: {{ file.creation_time }}</p>
-{% endfor %}
-
 <form method="POST" enctype="multipart/form-data">
   {% csrf_token %}
   {{ form.as_p }}
@@ -26,14 +21,15 @@
   <i>Führe Texterkennung durch...</i>
 </div>
 
-  <script type="text/javascript">
-    function spinner() {
-        document.getElementsByClassName("spinner")[0].style.display = "block";
-    };
 
-    function hide_spinner() {
-        document.getElementsByClassName("spinner")[0].style.display = "none";
-    }
-  </script> 
+<script type="text/javascript">
+  function spinner() {
+      document.getElementsByClassName("spinner")[0].style.display = "block";
+  };
+
+  function hide_spinner() {
+      document.getElementsByClassName("spinner")[0].style.display = "none";
+  }
+</script> 
 
 {% endblock content %}

@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+  .mycol {
+  columns: 4;
+}
+</style>
+
+<h3><i class="bi bi-mailbox2">&ensp;</i>Inbox</h3>
+
+<form method="POST">
+  {% csrf_token %}
+  <p>zu archivierende Datei: <a class="text-break badge bg-success me-2" href="{% url 'download_inbox' file %}">{{ file }}</a></p>
+  {{ form.as_p }}
+  <button type="submit" name="save" value="{{ file }}" onclick="spinner()" class="btn btn-primary">Speichern</button>
+</form>
+
+<div class="spinner" style="display: none;">
+  <div class="spinner-border mb-2" style="display: block;">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+  <i>Führe Texterkennung durch...</i>
+</div>
+
+
+<script type="text/javascript">
+function spinner() {
+    document.getElementsByClassName("spinner")[0].style.display = "block";
+};
+
+function hide_spinner() {
+    document.getElementsByClassName("spinner")[0].style.display = "none";
+}
+</script> 
+
+{% endblock content %}

@@ -1,12 +1,9 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=0.7">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
-      integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
-      crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
     <style>
       body {
         /* background-color: #ebebeb; */
@@ -15,9 +12,12 @@
       .alert-secondary {
         background-color: #e2e3e59e;
       }
-      /* h4, h3, .nav-link {
-        font-family: Segoe Print, cursive;
-      } */
+      h4, h3, .nav-link {
+        color: #557ca3;
+    }
+    .custom-badge {
+        background-color: #557ca3;
+      }
 
     </style>
 </head>
@@ -49,6 +49,13 @@
             <div class="card mb-3 shadow">
                 <ul class="nav flex-column">
                     <li class="nav-item">
+                    <a class="nav-link" aria-current="page" href="{% url 'scaninput' %}">
+                        {% if request.path == "/scaninput/" %}
+                            <i class="bi bi-box-arrow-in-right">&ensp;</i><strong>Scaninput</strong>
+                        {% else %}
+                            <i class="bi bi-box-arrow-in-right">&ensp;</i>Scaninput
+                        {% endif %}
+                    </a>
                     <a class="nav-link active" aria-current="page" href="/">
                         {% if request.path == "/" %}
                             <i class="bi bi-mailbox2">&ensp;</i><strong>Inbox</strong>
@@ -65,7 +72,7 @@
                     {% endif %}
                     </li>
                     <li class="nav-item">
-                    <a class="nav-link" href="#"><i class="bi bi-tags-fill">&ensp;</i>Tags</a>
+                    <a class="nav-link" href="{% url 'tags' %}"><i class="bi bi-tags-fill">&ensp;</i>Tags</a>
                     </li>
                     <li class="nav-item">
                     <a class="nav-link"><i class="bi bi-file-earmark-text-fill">&ensp;</i>Arten</a>
@@ -74,11 +81,11 @@
             </div>
         </div>
         
-        <div class="col">
+        <div class="col">  
             <div class="card mb-3 shadow">
                 <div class="card-body">
-                    {% block content %}
-                    {% endblock content %}
+            {% block content %}
+            {% endblock content %}
                 </div>
             </div>
         </div>

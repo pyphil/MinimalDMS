@@ -1,0 +1,22 @@
+{% extends 'base.html' %}  
+{% block content %}
+<style>
+  .mycol {
+  columns: 4;
+}
+</style>
+
+<h3><i class="bi bi-box-arrow-in-right"></i> Scaninput</h3>
+<form method="post" action="{% url 'inbox' %}">
+  {% csrf_token %}
+  <ul class="list-group">
+  {% for file in inbox_files %}
+    <li class="list-group-item"><a class="text-break badge bg-success me-2" href="{% url 'download_inbox' file.filename %}">{{ file.filename }}</a> {{ file.creation_time }} 
+      <button class="btn btn-secondary btn-sm ms-2" name="inbox_file" value="{{ file.filename }}"><i class="bi bi-stack"></i> Archivieren</button>
+    </li>
+  {% endfor %}
+  </ul>
+</form>
+
+
+{% endblock content %}

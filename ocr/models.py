@@ -21,6 +21,12 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.tag
+    
+    @property
+    def get_number_of_items(self):
+        number_of_items = len(Document.objects.filter(tags=self.id))
+
+        return number_of_items
 
 
 class Document(models.Model):
@@ -29,8 +35,9 @@ class Document(models.Model):
     doctype = models.ForeignKey(Doctype, on_delete=models.DO_NOTHING)
     tags = models.ManyToManyField(Tag)
     date = models.DateTimeField(auto_now=True, null=True, blank=True)
+    docdate = models.DateField()
     text = models.TextField(null=True, blank=True)
-    file = models.FileField(upload_to="data/" + str(uuid4()), null=True, blank=True)
+    file = models.FileField(upload_to="data/" + str(uuid4()))
     filename = models.CharField(max_length=260, null=True, blank=True)
     filefolder = models.CharField(max_length=36, null=True, blank=True)
 

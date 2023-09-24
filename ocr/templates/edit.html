@@ -19,7 +19,7 @@
   <p>
     <strong>Versionen:</strong><br>
     {% for version in versions %}
-      <p><a href="{% url 'download' version.filefolder version.filename %}">{{ version.filename }}</a> - Version {{ version.version }} - {{ version.date }}</p>
+      <p><a href="{% url 'download' version.filefolder version.filename %}">{{ version.filename }}</a> - Version {{ version.version }} - {{ version.date|date:"d.m.y, H:i" }}</p>
     {% endfor %}
   </p>
   <button type="submit" onclick="spinner()" class="btn btn-primary">Speichern</button>
