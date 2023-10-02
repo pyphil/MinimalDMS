@@ -38,6 +38,7 @@ def scaninput(request):
 
     return render(request, 'scaninput.html', {'inbox_files': inbox_files})
 
+
 def inbox(request):
     f = DocumentFormInput()
 
@@ -109,7 +110,10 @@ def edit(request, id):
                 text = ocr_scan(instance.file.path)
                 instance.text = text
                 instance.save()
-        return redirect('/archive/')
+        current_status = ""
+        if request.GET.get('current_status') != "None":
+            current_status = request.GET.get('current_status')
+        return redirect(f"/archive/?status={current_status}&search=&submit=submit")
 
 
 def ocr_scan(filepath):
@@ -156,11 +160,11 @@ def archive(request):
             if request.GET.get(i.tag) == "1":
                 docs = docs.filter(tags__tag__icontains=i.tag)
                 checked_tags.append(i)
-        current_status = None
+        current_status = ""
         if request.GET.get('status'):
             current_status = request.GET.get('status')
             docs = docs.filter(status__status=current_status)
-        current_doctype = None
+        current_doctype = ""
         if request.GET.get('doctype'):
             current_doctype = request.GET.get('doctype')
             docs = docs.filter(doctype__doctype=current_doctype)
@@ -175,6 +179,8 @@ def archive(request):
             'checked_tags': checked_tags,
             }
         )
+    if request.GET.get('delete_search'):
+        return redirect('archive')
     else:
         return render(request, 'archive.html', {'tags': tags, 'status_options': status_options, 'doctypes': doctypes})
 

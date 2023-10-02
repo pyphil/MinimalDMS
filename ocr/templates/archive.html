@@ -16,6 +16,7 @@
     </div>
     <div class="col-auto">
       <button type="submit" name="submit" value="submit" class="btn btn-lg btn-primary"><i class="bi bi-search"></i>&nbsp;Suchen</button>
+      <button type="submit" name="delete_search" value="delete_search" class="btn btn-lg btn-secondary" style="height: 48px;"><i class="bi bi-x-circle"></i></button>
     </div>
   </div>
   <nav>
@@ -36,7 +37,7 @@
           checked
           {% endif %}
           >
-          <label for="{{ tag }}" class="badge bg-secondary">
+          <label for="{{ tag }}" class="badge bg-secondary" style="margin-top: 2px;">
             {{ tag }}
           </label>
         </div>
@@ -83,7 +84,8 @@
       </thead>
       <tbody>
         {% for doc in docs %}
-          <form action="{% url 'edit' doc.id %}">
+          <!-- <form action="{% url 'edit' doc.id %}"> -->
+          <!-- <form action="/archive/{{ doc.id }}?current_status={{ current_status }}"> -->
             {% if forloop.counter|divisibleby:2 %}
             <tr class="table-secondary">
             {% else %}
@@ -98,7 +100,7 @@
               <td>{{ doc.status }}</td>
               <td>{{ doc.docdate|date:"d.m.y" }}</td>
               <td>{{ doc.doctype }}</td>
-              <td rowspan="2" class="align-middle"><div class="text-end"><button type="submit" class="btn btn-secondary btn-sm" style="height: 32px;"><i class="bi bi-pencil-fill"></i></button></div></td>
+              <td rowspan="2" class="align-middle"><div class="text-end"><a href="/archive/{{ doc.id }}?current_status={{ current_status }}" type="submit" class="btn btn-secondary btn-sm d-flex align-items-center" style="height: 32px; width: 32px;"><i class="bi bi-pencil-fill"></i></a></div></td>
             </tr>
             {% if forloop.counter|divisibleby:2 %}
             <tr class="table-secondary">
@@ -109,7 +111,7 @@
               <small>(Erstellt: {{ doc.date|date:"d.m.y, H:i" }})</small>
               </td>
             </tr>
-          </form>
+          <!-- </form> -->
         {% endfor %}
       </tbody>
     </table>

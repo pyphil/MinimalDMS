@@ -12,15 +12,19 @@
   {% csrf_token %}
   {{ form.as_p }}
   <p>
-    <strong>Aktuelle Datei:</strong> {{ filename }}<br>
-    vom {{ date }}
+    <strong>Aktuelle Datei: </strong><i class="bi bi-file-text"> </i><a class="text-break badge custom-badge" href="{% url 'download' form.instance.filefolder form.instance.filename %}">{{ filename }}</a><br>
+    vom {{ date|date:"d.m.y, H:i" }}
   </p>
 
   <p>
     <strong>Versionen:</strong><br>
-    {% for version in versions %}
-      <p><a href="{% url 'download' version.filefolder version.filename %}">{{ version.filename }}</a> - Version {{ version.version }} - {{ version.date|date:"d.m.y, H:i" }}</p>
-    {% endfor %}
+    {% if versions %}
+      {% for version in versions %}
+        <a href="{% url 'download' version.filefolder version.filename %}">{{ version.filename }}</a> - Version {{ version.version }} - {{ version.date|date:"d.m.y, H:i" }}<br>
+      {% endfor %}
+    {% else %}
+      - keine -
+    {% endif %}
   </p>
   <button type="submit" onclick="spinner()" class="btn btn-primary">Speichern</button>
 </form>
