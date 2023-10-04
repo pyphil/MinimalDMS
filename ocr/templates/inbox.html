@@ -11,7 +11,44 @@
 <form method="POST">
   {% csrf_token %}
   <p>zu archivierende Datei: <a class="text-break badge bg-success me-2" href="{% url 'download_inbox' file %}">{{ file }}</a></p>
-  {{ form.as_p }}
+  <!-- {{ form.as_p }} -->
+  <div class="row">
+    <div class="col">
+      <p><label for="id_name"><strong>Name/Bemerkung</strong>:</label> {{ form.name }}</p>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col">
+      <p><label for="id_status"><strong>Status</strong>:</label> {{ form.status }}</p>
+    </div>
+
+    <div class="col">
+      <p><label for="id_doctype"><strong>Dokumentenart</strong>:</label> {{ form.doctype }}</p>
+    </div>
+
+    <div class="col">
+      <p><label for="id_docdate"><strong>Datum</strong>:</label> {{ form.docdate }}</p>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col">
+      <p><label for="id_person"><strong>Person (optional):</strong></label> {{ form.person }}</p>
+    </div>
+
+  </div>
+  <div class="row">
+    <div class="col">
+      <label><strong>Tags</strong>:</label>{{ form.tags }}
+    </div>
+  </div>
+ 
+  <div class="row mt-3 mb-4">
+    <div class="col">
+      <label><strong>Notizen: </strong>:</label> {{ form.notes }}
+    </div>
+  </div>
   <button type="submit" name="save" value="{{ file }}" onclick="spinner()" class="btn btn-primary">Speichern</button>
 </form>
 

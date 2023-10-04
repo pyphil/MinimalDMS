@@ -10,22 +10,70 @@
 
 <form method="POST" enctype="multipart/form-data">
   {% csrf_token %}
-  {{ form.as_p }}
-  <p>
-    <strong>Aktuelle Datei: </strong><i class="bi bi-file-text"> </i><a class="text-break badge custom-badge" href="{% url 'download' form.instance.filefolder form.instance.filename %}">{{ filename }}</a><br>
-    vom {{ date|date:"d.m.y, H:i" }}
-  </p>
+  <div class="row">
+    <div class="col">
+      <p><label for="id_name"><strong>Name/Bemerkung</strong>:</label> {{ form.name }}</p>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col">
+      <p><label for="id_status"><strong>Status</strong>:</label> {{ form.status }}</p>
+    </div>
 
-  <p>
-    <strong>Versionen:</strong><br>
-    {% if versions %}
-      {% for version in versions %}
-        <a href="{% url 'download' version.filefolder version.filename %}">{{ version.filename }}</a> - Version {{ version.version }} - {{ version.date|date:"d.m.y, H:i" }}<br>
-      {% endfor %}
-    {% else %}
-      - keine -
-    {% endif %}
-  </p>
+    <div class="col">
+      <p><label for="id_doctype"><strong>Dokumentenart</strong>:</label> {{ form.doctype }}</p>
+    </div>
+
+    <div class="col">
+      <p><label for="id_docdate"><strong>Datum</strong>:</label> {{ form.docdate }}</p>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col">
+      <p><label for="id_person"><strong>Person (optional):</strong></label> {{ form.person }}</p>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col">
+      <label><strong>Tags</strong>:</label>{{ form.tags }}
+    </div>
+  </div>
+ 
+  <div class="row mt-3">
+    <div class="col">
+      <strong>Aktuelle Datei: </strong><i class="bi bi-file-text"> </i><a class="text-break badge custom-badge" href="{% url 'download' form.instance.filefolder form.instance.filename %}">{{ filename }}</a><br>
+      vom {{ date|date:"d.m.y, H:i" }}
+    </div>
+  </div>
+
+  <div class="row mt-3">
+    <div class="col">
+      <strong>Versionen:</strong><br>
+      {% if versions %}
+        {% for version in versions %}
+          <a href="{% url 'download' version.filefolder version.filename %}">{{ version.filename }}</a> - Version {{ version.version }} - {{ version.date|date:"d.m.y, H:i" }}<br>
+        {% endfor %}
+      {% else %}
+        - keine -
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row mt-3 mb-4">
+    <div class="col">
+      <label><strong>Neue Version hochladen: </strong>:</label> {{ form.file }}
+    </div>
+  </div>
+
+  <div class="row mt-3 mb-4">
+    <div class="col">
+      <label><strong>Notizen: </strong>:</label> {{ form.notes }}
+    </div>
+  </div>
+
   <button type="submit" onclick="spinner()" class="btn btn-primary">Speichern</button>
 </form>
 

@@ -3,7 +3,7 @@ import pytesseract
 from pdf2image import convert_from_path
 from pypdf import PdfReader, PdfWriter
 import io
-from .forms import DocumentForm, DocumentFormEdit, DocumentFormInput, TagForm
+from .forms import DocumentForm, DocumentFormEdit, DocumentFormInput, TagForm, DoctypeForm
 from .models import Document, Version, Tag, Status, Doctype
 from django.http import FileResponse
 from django.conf import settings
@@ -113,7 +113,11 @@ def edit(request, id):
         current_status = ""
         if request.GET.get('current_status') != "None":
             current_status = request.GET.get('current_status')
-        return redirect(f"/archive/?status={current_status}&search=&submit=submit")
+        if request.GET.get('current_doctype') != "None":
+            current_doctype = request.GET.get('current_doctype')
+        if request.GET.get('search_text') != "None":
+            search_text = request.GET.get('search_text')
+        return redirect(f"/archive/?status={current_status}&search={search_text}&doctype={current_doctype}&submit=submit")
 
 
 def ocr_scan(filepath):
@@ -169,7 +173,7 @@ def archive(request):
             current_doctype = request.GET.get('doctype')
             docs = docs.filter(doctype__doctype=current_doctype)
         return render(request, 'archive.html', {
-            'docs': docs,
+            'docs': docs[:100],
             'tags': tags,
             'status_options': status_options,
             'current_status': current_status,
@@ -182,7 +186,8 @@ def archive(request):
     if request.GET.get('delete_search'):
         return redirect('archive')
     else:
-        return render(request, 'archive.html', {'tags': tags, 'status_options': status_options, 'doctypes': doctypes})
+        docs = Document.objects.all()[:100]
+        return render(request, 'archive.html', {'docs': docs, 'tags': tags, 'status_options': status_options, 'doctypes': doctypes})
 
 
 def get_inbox_files():
@@ -243,6 +248,39 @@ def tags(request):
 
     return render(request, "tags.html", {
         'tags': tags,
+        'forms': forms,
+        'new_form': new_form,
+        }
+    )
+
+
+def doctypes(request):
+    doctypes = Doctype.objects.all()
+    new_form = DoctypeForm()
+    forms = []
+    for doctype in doctypes:
+        forms.append(DoctypeForm(instance=doctype))
+
+    if request.method == 'POST':
+        if request.POST.get('save_new'):
+            new_form = DoctypeForm(request.POST)
+            if new_form.is_valid():
+                new_form.save()
+                return redirect('doctypes')
+        if request.POST.get('save_edited'):
+            obj = Doctype.objects.get(id=request.POST.get('save_edited'))
+            edited_form = DoctypeForm(request.POST, instance=obj)
+            if edited_form.is_valid():
+                edited_form.save()
+                return redirect('doctypes')
+        if request.POST.get('delete'):
+            obj = Doctype.objects.get(id=request.POST.get('delete'))
+            if obj.get_number_of_items == 0:
+                obj.delete()
+                return redirect('doctypes')
+
+    return render(request, "doctypes.html", {
+        'doctypes': doctypes,
         'forms': forms,
         'new_form': new_form,
         }

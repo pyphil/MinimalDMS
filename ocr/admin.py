@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Document, Tag, Status, Doctype, Version
+from .models import Document, Tag, Status, Doctype, Version, Person
 
 
 class DocumentCustomAdmin(admin.ModelAdmin):
@@ -11,5 +11,6 @@ class DocumentCustomAdmin(admin.ModelAdmin):
 admin.site.register(Document, DocumentCustomAdmin)
 admin.site.register(Status)
 admin.site.register(Doctype)
+admin.site.register(Person)
 admin.site.register(Tag)
 admin.site.register(Version)
