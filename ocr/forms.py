@@ -1,6 +1,6 @@
 from cgitb import strong
 from django.forms import ModelForm
-from .models import Document, Tag, Doctype
+from .models import Document, Tag, Doctype, Person
 from django import forms
 from django.utils.safestring import mark_safe
 
@@ -132,4 +132,16 @@ class DoctypeForm(ModelForm):
 
         widgets = {
             'doctype': forms.TextInput(attrs={'class': 'form-control'})
+        }
+
+
+class PersonForm(ModelForm):
+    class Meta:
+        model = Person
+        fields = [
+            'person'
+        ]
+
+        widgets = {
+            'person': forms.TextInput(attrs={'class': 'form-control'})
         }

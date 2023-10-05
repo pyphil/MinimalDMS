@@ -6,9 +6,9 @@
   }
 </style>
 
-<h3>Archiv</h3>
+<h3><i class="bi bi-archive-fill"> </i>Archiv</h3>
 
-<label for="search" class="form-label">Suche nach Text in den PDF-Dateien, in der Bemerkung und im Dateinamen:</label>
+<label for="search" class="form-label">Suche nach Text in den PDF-Dateien, in der Bemerkung, dem Dateinamen und in Notizen:</label>
 <form>
   <div class="row">
     <div class="col">
@@ -21,9 +21,10 @@
   </div>
   <nav>
     <div class="nav nav-tabs mt-2" id="nav-tab" role="tablist">
-      <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Tags</button>
-      <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Status</button>
-      <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="false">Dokumentenart</button>
+      <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true"><i class="bi bi-tags-fill"></i> Tags</button>
+      <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-status" type="button" role="tab" aria-controls="nav-status" aria-selected="false"><i class="bi bi-stoplights-fill"></i> Status</button>
+      <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-doctype" type="button" role="tab" aria-controls="nav-doctype" aria-selected="false"><i class="bi bi-file-earmark-text-fill"></i> Dokumentenart</button>
+      <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-person" type="button" role="tab" aria-controls="nav-person" aria-selected="false"><i class="bi bi-person-vcard-fill"></i> Person</button>
     </div>
   </nav>
   <div class="tab-content" id="nav-tabContent">
@@ -44,7 +45,7 @@
       {% endfor %}
       </div>
     </div>
-    <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+    <div class="tab-pane fade" id="nav-status" role="tabpanel" aria-labelledby="nav-status-tab">
       <div class="col mt-2 ms-2">
         <input class="form-check-input" type="radio" name="status" value="" id="None" {% if not stat.status %}checked{% endif %}>
         <label class="form-check-label" for="None">Alle</label>
@@ -56,12 +57,22 @@
         </div>
       {% endfor %}
     </div>
-    <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
+    <div class="tab-pane fade" id="nav-doctype" role="tabpanel" aria-labelledby="nav-doctype-tab">
       <div class="col mt-2 ms-2">
         <select class="form-select" name="doctype" aria-label="Dokumentenart">
           <option value="" selected>Alle</option>
             {% for doctype in doctypes %}
               <option value="{{ doctype }}" {% if doctype.doctype == current_doctype %}selected{% endif %}>{{ doctype }}</option>
+            {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="tab-pane fade" id="nav-person" role="tabpanel" aria-labelledby="nav-person-tab">
+      <div class="col mt-2 ms-2">
+        <select class="form-select" name="person" aria-label="Person">
+          <option value="" selected>---</option>
+            {% for person in persons %}
+              <option value="{{ person }}" {% if person.person == current_person %}selected{% endif %}>{{ person }}</option>
             {% endfor %}
         </select>
       </div>
@@ -114,16 +125,21 @@
             <tr class="table-light">
             {% endif %}
               <td colspan="4"><i class="bi bi-file-text"> </i><a class="text-break badge custom-badge" href="{% url 'download' doc.filefolder doc.filename %}">{{ doc.filename }}</a>
-              <small>(Erstellt: {{ doc.date|date:"d.m.y, H:i" }})</small>
+              <small>(Erstellt: {{ doc.date|date:"d.m.y, H:i" }})</small> 
+              {% if doc.person %}
+                &nbsp; &middot; &nbsp; <i class="bi bi-person-vcard-fill"></i> {{ doc.person }}
+              {% endif %}
               </td>
             </tr>
           <!-- </form> -->
         {% endfor %}
       </tbody>
     </table>
-    <div class="text-center">
-      <p><em>Es werden die ersten 100 Einträge angezeigt. Passe deine Suche an, um weitere Einträge zu anzuzeigen.</em></p>
-    </div>
+    {% if hundret_or_more %}
+      <div class="text-center">
+        <p><em>Es werden die ersten 100 Einträge angezeigt. Passe deine Suche an, um weitere Einträge zu anzuzeigen.</em></p>
+      </div>
+    {% endif %}
   </div>
 </div>
 

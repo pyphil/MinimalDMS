@@ -7,7 +7,7 @@
 </style>
 
 <h3><i class="bi bi-box-arrow-in-right"></i> Scaninput</h3>
-<form method="post" action="{% url 'inbox' %}">
+<form method="post" action="{% url 'inbox_scaninput' %}">
   {% csrf_token %}
   <ul class="list-group">
   {% for file in inbox_files %}

@@ -45,7 +45,7 @@
     </nav>
 
     <div class="row">
-        <div class="col-1" style="width: 220px;">
+        <div class="col-1" style="width: 225px;">
             <div class="card mb-3 shadow">
                 <ul class="nav flex-column">
                     <li class="nav-item">
@@ -56,8 +56,8 @@
                             <i class="bi bi-box-arrow-in-right">&ensp;</i>Scaninput
                         {% endif %}
                     </a>
-                    <a class="nav-link active" aria-current="page" href="/">
-                        {% if request.path == "/" %}
+                    <a class="nav-link active" aria-current="page" href="/inbox/">
+                        {% if request.path == "/inbox/" %}
                             <i class="bi bi-mailbox2">&ensp;</i><strong>Inbox</strong>
                         {% else %}
                             <i class="bi bi-mailbox2">&ensp;</i>Inbox
@@ -65,20 +65,32 @@
                     </a>
                     </li>
                     <li class="nav-item">
-                    {% if request.path == "/archive/" %}
-                        <a class="nav-link" href="/archive/"><i class="bi bi-archive-fill">&ensp;</i><strong>Archiv</strong></a>
-                    {% else %}
-                        <a class="nav-link" href="/archive/"><i class="bi bi-archive-fill">&ensp;</i>Archiv</a>
-                    {% endif %}
+                        {% if request.path == "/" %}
+                            <a class="nav-link" href="/"><i class="bi bi-archive-fill">&ensp;</i><strong>Archiv</strong></a>
+                        {% else %}
+                        <a class="nav-link" href="/"><i class="bi bi-archive-fill">&ensp;</i>Archiv</a>
+                        {% endif %}
                     </li>
                     <li class="nav-item">
+                        {% if request.path == "/tags/" %}
+                            <a class="nav-link" href="{% url 'tags' %}"><i class="bi bi-tags-fill">&ensp;</i><strong>Tags</strong></a>
+                        {% else %}
                         <a class="nav-link" href="{% url 'tags' %}"><i class="bi bi-tags-fill">&ensp;</i>Tags</a>
+                        {% endif %}
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'doctypes' %}"><i class="bi bi-file-earmark-text-fill">&ensp;</i>Dokumentenarten</a>
+                        {% if request.path == "/doctypes/" %}
+                            <a class="nav-link" href="{% url 'doctypes' %}"><i class="bi bi-file-earmark-text-fill">&ensp;</i><strong>Dokumentenarten</strong></a>
+                        {% else %}
+                            <a class="nav-link" href="{% url 'doctypes' %}"><i class="bi bi-file-earmark-text-fill">&ensp;</i>Dokumentenarten</a>
+                        {% endif %}
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="bi bi-person-vcard-fill">&ensp;</i>Personen</a>
+                        {% if request.path == "/persons/" %}
+                            <a class="nav-link" href="{% url 'persons' %}"><i class="bi bi-person-vcard-fill">&ensp;</i><strong>Personen</strong></a>
+                        {% else %}
+                            <a class="nav-link" href="{% url 'persons' %}"><i class="bi bi-person-vcard-fill">&ensp;</i>Personen</a>
+                        {% endif %}
                     </li>
                 </ul>
             </div>

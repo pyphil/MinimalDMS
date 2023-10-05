@@ -3,8 +3,8 @@ import pytesseract
 from pdf2image import convert_from_path
 from pypdf import PdfReader, PdfWriter
 import io
-from .forms import DocumentForm, DocumentFormEdit, DocumentFormInput, TagForm, DoctypeForm
-from .models import Document, Version, Tag, Status, Doctype
+from .forms import DocumentForm, DocumentFormEdit, DocumentFormInput, TagForm, DoctypeForm, PersonForm
+from .models import Document, Version, Tag, Status, Doctype, Person
 from django.http import FileResponse
 from django.conf import settings
 import os
@@ -13,7 +13,7 @@ import shutil
 from uuid import uuid4
 
 
-def home(request):
+def inbox(request):
     f = DocumentForm()
 
     inbox_files = get_inbox_files()  
@@ -28,9 +28,9 @@ def home(request):
             text = ocr_scan(instance.file.path)
             instance.text = text
             instance.save()
-            return redirect('/archive/')
+            return redirect('archive')
 
-    return render(request, 'home.html', {'form': f, 'inbox_files': inbox_files})
+    return render(request, 'inbox.html', {'form': f, 'inbox_files': inbox_files})
 
 
 def scaninput(request):
@@ -39,7 +39,7 @@ def scaninput(request):
     return render(request, 'scaninput.html', {'inbox_files': inbox_files})
 
 
-def inbox(request):
+def inbox_scaninput(request):
     f = DocumentFormInput()
 
     if request.POST.get('inbox_file'):
@@ -61,9 +61,9 @@ def inbox(request):
             instance.filename = request.POST.get('save')
             instance.filefolder = uuid_dir
             instance.save()
-            return redirect('/archive/')
+            return redirect('archive')
 
-    return render(request, 'inbox.html', {'form': f, 'file': file, })
+    return render(request, 'inbox_scaninput.html', {'form': f, 'file': file, })
 
 
 def edit(request, id):
@@ -117,7 +117,7 @@ def edit(request, id):
             current_doctype = request.GET.get('current_doctype')
         if request.GET.get('search_text') != "None":
             search_text = request.GET.get('search_text')
-        return redirect(f"/archive/?status={current_status}&search={search_text}&doctype={current_doctype}&submit=submit")
+        return redirect(f"/?status={current_status}&search={search_text}&doctype={current_doctype}&submit=submit")
 
 
 def ocr_scan(filepath):
@@ -151,13 +151,15 @@ def archive(request):
     tags = Tag.objects.all()
     status_options = Status.objects.all()
     doctypes = Doctype.objects.all()
+    persons = Person.objects.all()
     if request.GET.get('submit'):
         search_strings = request.GET.get('search').split(" ")
         for search_string in search_strings:
             docs = (
                 Document.objects.filter(text__icontains=search_string) | 
                 Document.objects.filter(name__icontains=search_string) | 
-                Document.objects.filter(filename__icontains=search_string)
+                Document.objects.filter(filename__icontains=search_string) | 
+                Document.objects.filter(notes__icontains=search_string)
             )
         checked_tags = []
         for i in tags:
@@ -172,22 +174,44 @@ def archive(request):
         if request.GET.get('doctype'):
             current_doctype = request.GET.get('doctype')
             docs = docs.filter(doctype__doctype=current_doctype)
+        current_person = ""
+        if request.GET.get('person'):
+            current_person = request.GET.get('person')
+            docs = docs.filter(person__person=current_person)
+        docs = docs[:100]
+        hundret_or_more = None
+        if len(docs) == 10:
+            hundret_or_more = True
         return render(request, 'archive.html', {
-            'docs': docs[:100],
+            'docs': docs,
             'tags': tags,
             'status_options': status_options,
             'current_status': current_status,
             'current_doctype': current_doctype,
+            'current_person': current_person,
             'doctypes': doctypes,
+            'persons': persons,
             'search_text': request.GET.get('search'),
             'checked_tags': checked_tags,
+            'hundret_or_more': hundret_or_more,
             }
         )
     if request.GET.get('delete_search'):
         return redirect('archive')
     else:
         docs = Document.objects.all()[:100]
-        return render(request, 'archive.html', {'docs': docs, 'tags': tags, 'status_options': status_options, 'doctypes': doctypes})
+        hundret_or_more = None
+        if len(docs) == 10:
+            hundret_or_more = True
+        return render(request, 'archive.html', {
+            'docs': docs, 
+            'tags': tags, 
+            'status_options': status_options, 
+            'doctypes': doctypes, 
+            'persons': persons,
+            'hundret_or_more': hundret_or_more,
+            }
+        )
 
 
 def get_inbox_files():
@@ -281,6 +305,39 @@ def doctypes(request):
 
     return render(request, "doctypes.html", {
         'doctypes': doctypes,
+        'forms': forms,
+        'new_form': new_form,
+        }
+    )
+
+
+def persons(request):
+    persons = Person.objects.all()
+    new_form = PersonForm()
+    forms = []
+    for person in persons:
+        forms.append(PersonForm(instance=person))
+
+    if request.method == 'POST':
+        if request.POST.get('save_new'):
+            new_form = PersonForm(request.POST)
+            if new_form.is_valid():
+                new_form.save()
+                return redirect('persons')
+        if request.POST.get('save_edited'):
+            obj = Person.objects.get(id=request.POST.get('save_edited'))
+            edited_form = PersonForm(request.POST, instance=obj)
+            if edited_form.is_valid():
+                edited_form.save()
+                return redirect('persons')
+        if request.POST.get('delete'):
+            obj = Person.objects.get(id=request.POST.get('delete'))
+            if obj.get_number_of_items == 0:
+                obj.delete()
+                return redirect('persons')
+
+    return render(request, "persons.html", {
+        'persons': persons,
         'forms': forms,
         'new_form': new_form,
         }

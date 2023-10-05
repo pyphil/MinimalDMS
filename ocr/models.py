@@ -27,6 +27,12 @@ class Person(models.Model):
 
     def __str__(self):
         return self.person
+    
+    @property
+    def get_number_of_items(self):
+        number_of_items = len(Document.objects.filter(person=self.id))
+
+        return number_of_items
 
 
 class Tag(models.Model):

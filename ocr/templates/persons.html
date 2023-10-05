@@ -6,22 +6,22 @@
 }
 </style>
 
-<h3><i class="bi bi-file-earmark-text-fill"></i> Dokumentenarten</h3>
+<h3><i class="bi bi-person-vcard-text-fill"></i> Personen</h3>
 
 <table class="table" style="width: 500px;">
   <thead>
-    <th>Dokumentenarten</th>
+    <th>Personen</th>
     <th>Zugeordnete Dokumente</th>
     <th></th>
   </thead>
-{% for doctype in doctypes %}
+{% for person in persons %}
   <tr>
-    <td>{{ doctype }}</td>
-    <td>{{ doctype.get_number_of_items }}</td>
+    <td>{{ person }}</td>
+    <td>{{ person.get_number_of_items }}</td>
     <td>
-    <button class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#editModal{{ doctype.id }}"><i class="bi bi-pencil-fill"></i></button>
-    {% if doctype.get_number_of_items == 0 %}
-      <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ doctype.id }}"><i class="bi bi-x-lg"></i></button>
+    <button class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#editModal{{ person.id }}"><i class="bi bi-pencil-fill"></i></button>
+    {% if person.get_number_of_items == 0 %}
+      <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ person.id }}"><i class="bi bi-x-lg"></i></button>
     {% else %}
       <button class="btn btn-secondary btn-sm" disabled><i class="bi bi-x-lg"></i></button>
     {% endif %}
@@ -88,7 +88,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <p>Soll die Dokumentenart <strong>{{ form.instance.doctype }}</strong> wirklich gelöscht werden? Dies ist nur möglich, wenn der Dokumentenart keine Dateien mehr zugeordnet sind.</p>
+          <p>Soll die Dokumentenart <strong>{{ form.instance.person }}</strong> wirklich gelöscht werden? Dies ist nur möglich, wenn der Dokumentenart keine Dateien mehr zugeordnet sind.</p>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
