@@ -93,19 +93,19 @@
                     </li>
                 </ul>
             </div>
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-info" role="alert">
+                        {{ message|safe }}
+                    </div>
+                {% endfor %}
+            {% endif %}
             {% if files %}
                 {% for file in files %}
                     <div class="alert alert-danger" role="alert">
                         <small><strong><i class="bi bi-alarm-fill"></i> Wiedervorlage vom</strong><br>
                         <i>{{ file.resubmission_date }}</i><br>
                         <a href="/archive/{{ file.id }}?current_status=&current_doctype=&search_text=">{{ file.name }}</a><br></small>
-                    </div>
-                {% endfor %}
-            {% endif %}
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-info" role="alert">
-                        {{ message }}
                     </div>
                 {% endfor %}
             {% endif %}

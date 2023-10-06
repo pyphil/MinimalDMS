@@ -26,16 +26,20 @@ def inbox(request):
             instance = f.save(commit=False)
             instance.filename = instance.file.name.split('/')[2]
             instance.filefolder = instance.file.name.split('/')[1]
-            text = ocr_scan(instance.file.path)
+            text, error = ocr_scan(instance.file.path)
             instance.text = text
-            instance.save()
-            return redirect('archive')
+            if not error:
+                instance.save()
+                return redirect('archive')
+            else:
+                instance.delete()
+                messages.error(request, f'<i class="bi bi-exclamation-triangle-fill"></i> Beim Speichern von <b>{instance.name}</b> ist ein Fehler aufgetreten. Es handelt sich nicht um eine lesbare PDF-Datei.')
 
     return render(request, 'inbox.html', {'form': f, 'inbox_files': inbox_files})
 
 
 def scaninput(request):
-    inbox_files = get_inbox_files()  
+    inbox_files = get_inbox_files()
 
     return render(request, 'scaninput.html', {'inbox_files': inbox_files})
 
@@ -45,7 +49,7 @@ def inbox_scaninput(request):
 
     if request.POST.get('inbox_file'):
         file = request.POST.get('inbox_file')
-    
+
     if request.POST.get('save'):
         f = DocumentFormInput(request.POST)
         if f.is_valid():
@@ -54,15 +58,19 @@ def inbox_scaninput(request):
             uuid_dir = str(uuid4())
             input_path = os.path.join(settings.MEDIA_ROOT, 'inbox', request.POST.get('save'))
             dest_path = os.path.join(settings.MEDIA_ROOT, 'data', uuid_dir)
-            text = ocr_scan(input_path)
+            text, error = ocr_scan(input_path)
             instance.text = text
             os.mkdir(dest_path)
             shutil.move(input_path, dest_path)
             instance.file = 'data/' + request.POST.get('save')
             instance.filename = request.POST.get('save')
             instance.filefolder = uuid_dir
-            instance.save()
-            return redirect('archive')
+            if not error:
+                instance.save()
+                return redirect('archive')
+            else:
+                instance.delete()
+                messages.error(request, f'<i class="bi bi-exclamation-triangle-fill"></i> Beim Speichern von <b>{instance.name}</b> ist ein Fehler aufgetreten. Es handelt sich nicht um eine lesbare PDF-Datei.')
 
     return render(request, 'inbox_scaninput.html', {'form': f, 'file': file, })
 
@@ -108,9 +116,12 @@ def edit(request, id):
                 instance = f.save(commit=False)
                 instance.filename = instance.file.name.split('/')[2]
                 instance.filefolder = instance.file.name.split('/')[1]
-                text = ocr_scan(instance.file.path)
+                text, error = ocr_scan(instance.file.path)
                 instance.text = text
-                instance.save()
+                if not error:
+                    instance.save()
+                else:
+                    messages.error(request, f'<i class="bi bi-exclamation-triangle-fill"></i> <small>Beim Speichern von einer neuen Dateiversion von <b>{instance.name}</b> ist ein Fehler aufgetreten. Es handelt sich nicht um eine lesbare PDF-Datei.</small>')
         current_status = ""
         if request.GET.get('current_status') != "None":
             current_status = request.GET.get('current_status')
@@ -118,35 +129,38 @@ def edit(request, id):
             current_doctype = request.GET.get('current_doctype')
         if request.GET.get('search_text') != "None":
             search_text = request.GET.get('search_text')
-        messages.info(request, "Daten wurden gesichert.")
         return redirect(f"/?status={current_status}&search={search_text}&doctype={current_doctype}&submit=submit")
 
 
 def ocr_scan(filepath):
-    # get text from pdf
-    reader = PdfReader(filepath)
+    error = None
     text = ""
-    for page in reader.pages:
-        text += page.extract_text()
+    try:
+        # get text from pdf
+        reader = PdfReader(filepath)
+        for page in reader.pages:
+            text += page.extract_text()
 
-    # always add complete text from images to text variable as well
-    # if no text in pdf: convert to image and then to searchable pdf
-    images = convert_from_path(filepath, dpi=300, fmt='tiff')
-    writer = PdfWriter()
-    if text == "":
-        for image in images:
-            page = pytesseract.image_to_pdf_or_hocr(image, lang="deu", extension='pdf')
-            pdf = PdfReader(io.BytesIO(page))
-            text += pytesseract.image_to_string(image, lang="deu")
-            writer.add_page(pdf.pages[0])
-            # export pdf to same filename as searchable pdf if only image
-            with open(filepath, 'wb') as f:
-                writer.write(f)
-    else:
-        for image in images:
-            text += pytesseract.image_to_string(image, lang="deu")
+        # always add complete text from images to text variable as well
+        # if no text in pdf: convert to image and then to searchable pdf
+        images = convert_from_path(filepath, dpi=300, fmt='tiff')
+        writer = PdfWriter()
+        if text == "":
+            for image in images:
+                page = pytesseract.image_to_pdf_or_hocr(image, lang="deu", extension='pdf')
+                pdf = PdfReader(io.BytesIO(page))
+                text += pytesseract.image_to_string(image, lang="deu")
+                writer.add_page(pdf.pages[0])
+                # export pdf to same filename as searchable pdf if only image
+                with open(filepath, 'wb') as f:
+                    writer.write(f)
+        else:
+            for image in images:
+                text += pytesseract.image_to_string(image, lang="deu")
+    except Exception:
+        error = True
 
-    return text
+    return text, error
 
 
 def archive(request):
@@ -162,7 +176,7 @@ def archive(request):
                 Document.objects.filter(name__icontains=search_string) | 
                 Document.objects.filter(filename__icontains=search_string) | 
                 Document.objects.filter(notes__icontains=search_string)
-            )
+            ).order_by('docdate')
         checked_tags = []
         for i in tags:
             if request.GET.get(i.tag) == "1":
@@ -181,9 +195,9 @@ def archive(request):
             current_person = request.GET.get('person')
             docs = docs.filter(person__person=current_person)
         docs = docs[:100]
-        hundret_or_more = None
+        hundred_or_more = None
         if len(docs) == 100:
-            hundret_or_more = True
+            hundred_or_more = True
         return render(request, 'archive.html', {
             'docs': docs,
             'tags': tags,
@@ -195,23 +209,23 @@ def archive(request):
             'persons': persons,
             'search_text': request.GET.get('search'),
             'checked_tags': checked_tags,
-            'hundret_or_more': hundret_or_more,
+            'hundred_or_more': hundred_or_more,
             }
         )
     if request.GET.get('delete_search'):
         return redirect('archive')
     else:
-        docs = Document.objects.all()[:100]
-        hundret_or_more = None
+        docs = Document.objects.all().order_by('docdate')[:100]
+        hundred_or_more = None
         if len(docs) == 100:
-            hundret_or_more = True
+            hundred_or_more = True
         return render(request, 'archive.html', {
             'docs': docs,
             'tags': tags,
             'status_options': status_options,
             'doctypes': doctypes,
             'persons': persons,
-            'hundret_or_more': hundret_or_more,
+            'hundred_or_more': hundred_or_more,
             }
         )
 
