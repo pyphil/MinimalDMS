@@ -56,6 +56,7 @@ class Document(models.Model):
     tags = models.ManyToManyField(Tag, blank=True)
     date = models.DateTimeField(auto_now=True, null=True, blank=True)
     docdate = models.DateField()
+    resubmission = models.DateField(null=True, blank=True)
     text = models.TextField(null=True, blank=True)
     file = models.FileField(upload_to="data/" + str(uuid4()))
     filename = models.CharField(max_length=260, null=True, blank=True)

@@ -11,6 +11,7 @@ import os
 import datetime
 import shutil
 from uuid import uuid4
+from django.contrib import messages
 
 
 def inbox(request):
@@ -117,6 +118,7 @@ def edit(request, id):
             current_doctype = request.GET.get('current_doctype')
         if request.GET.get('search_text') != "None":
             search_text = request.GET.get('search_text')
+        messages.info(request, "Daten wurden gesichert.")
         return redirect(f"/?status={current_status}&search={search_text}&doctype={current_doctype}&submit=submit")
 
 
@@ -180,7 +182,7 @@ def archive(request):
             docs = docs.filter(person__person=current_person)
         docs = docs[:100]
         hundret_or_more = None
-        if len(docs) == 10:
+        if len(docs) == 100:
             hundret_or_more = True
         return render(request, 'archive.html', {
             'docs': docs,
@@ -201,13 +203,13 @@ def archive(request):
     else:
         docs = Document.objects.all()[:100]
         hundret_or_more = None
-        if len(docs) == 10:
+        if len(docs) == 100:
             hundret_or_more = True
         return render(request, 'archive.html', {
-            'docs': docs, 
-            'tags': tags, 
-            'status_options': status_options, 
-            'doctypes': doctypes, 
+            'docs': docs,
+            'tags': tags,
+            'status_options': status_options,
+            'doctypes': doctypes,
             'persons': persons,
             'hundret_or_more': hundret_or_more,
             }

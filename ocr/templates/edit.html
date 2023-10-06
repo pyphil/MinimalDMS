@@ -6,27 +6,34 @@
 }
 </style>
 
+
 <h3>Eigenschaften bearbeiten</h3>
 
 <form method="POST" enctype="multipart/form-data">
   {% csrf_token %}
   <div class="row">
     <div class="col">
-      <p><label for="id_name"><strong>Name/Bemerkung</strong>:</label> {{ form.name }}</p>
+      <p><label for="id_name"><strong>Name/Bemerkung:</strong></label> {{ form.name }}</p>
     </div>
   </div>
   
   <div class="row">
     <div class="col">
-      <p><label for="id_status"><strong>Status</strong>:</label> {{ form.status }}</p>
+      <p><label for="id_status"><strong>Status:</strong></label> {{ form.status }}</p>
     </div>
 
     <div class="col">
-      <p><label for="id_doctype"><strong>Dokumentenart</strong>:</label> {{ form.doctype }}</p>
+      <p><label for="id_doctype"><strong>Dokumentenart:</strong></label> {{ form.doctype }}</p>
     </div>
 
     <div class="col">
-      <p><label for="id_docdate"><strong>Datum</strong>:</label> {{ form.docdate }}</p>
+      <p><label for="id_docdate"><strong>Datum:</strong></label> {{ form.docdate }}</p>
+    </div>
+  </div>
+
+  <div class="row" style="display: none;" id="id_resubmission">
+    <div class="col-4">
+      <p><label for="id_docdate" ><strong>Wiedervorlagedatum:</strong></label> {{ form.resubmission }}</p>
     </div>
   </div>
 
@@ -38,7 +45,7 @@
 
   <div class="row">
     <div class="col">
-      <label><strong>Tags</strong>:</label>{{ form.tags }}
+      <label><strong>Tags:</strong></label>{{ form.tags }}
     </div>
   </div>
  
@@ -81,14 +88,28 @@
     <span class="visually-hidden">Loading...</span>
   </div>
 
-  <script type="text/javascript">
-    function spinner() {
-        document.getElementsByClassName("spinner-border")[0].style.display = "block";
-    };
+  <script>
+    // Get references to the select and input elements
+    const id_status = document.getElementById('id_status');
+    const id_resubmission = document.getElementById('id_resubmission');
+  
+    // Add an event listener to the select element
+    id_status.addEventListener('change', function () {
+        if (id_status.value === '3') {
+            // Show the "resubmission" row if "resubmission" is selected
+            id_resubmission.style.display = 'block';
+        } else {
+            // Hide the row for other options
+            id_resubmission.style.display = 'none';
+        }
+    });
 
-    function hide_spinner() {
-        document.getElementsByClassName("spinner-border")[0].style.display = "none";
-    }
-  </script> 
+    // Check the initial value of the select element on page load
+    if (id_status.value === '3') {
+          // Show the "resubmission" row if "resubmission" is initially selected
+          id_resubmission.style.display = 'block';
+      }
+  </script>
+
 
 {% endblock content %}

@@ -9,6 +9,7 @@
 <h3><i class="bi bi-archive-fill"> </i>Archiv</h3>
 
 <label for="search" class="form-label">Suche nach Text in den PDF-Dateien, in der Bemerkung, dem Dateinamen und in Notizen:</label>
+<div id="upper">
 <form>
   <div class="row">
     <div class="col">
@@ -21,10 +22,10 @@
   </div>
   <nav>
     <div class="nav nav-tabs mt-2" id="nav-tab" role="tablist">
-      <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true"><i class="bi bi-tags-fill"></i> Tags</button>
-      <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-status" type="button" role="tab" aria-controls="nav-status" aria-selected="false"><i class="bi bi-stoplights-fill"></i> Status</button>
-      <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-doctype" type="button" role="tab" aria-controls="nav-doctype" aria-selected="false"><i class="bi bi-file-earmark-text-fill"></i> Dokumentenart</button>
-      <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-person" type="button" role="tab" aria-controls="nav-person" aria-selected="false"><i class="bi bi-person-vcard-fill"></i> Person</button>
+      <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true" onclick="calculateHeight();"><i class="bi bi-tags-fill"></i> Tags</button>
+      <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-status" type="button" role="tab" aria-controls="nav-status" aria-selected="false" onclick="calculateHeight();"><i class="bi bi-stoplights-fill"></i> Status</button>
+      <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-doctype" type="button" role="tab" aria-controls="nav-doctype" aria-selected="false" onclick="calculateHeight();"><i class="bi bi-file-earmark-text-fill"></i> Dokumentenart</button>
+      <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-person" type="button" role="tab" aria-controls="nav-person" aria-selected="false" onclick="calculateHeight();"><i class="bi bi-person-vcard-fill"></i> Person</button>
     </div>
   </nav>
   <div class="tab-content" id="nav-tabContent">
@@ -79,8 +80,9 @@
     </div>
   </div>
 </form>
+</div>
 
-<div class="row mb-4">
+<div class="row mb-4" id="lower" style="overflow: scroll;">
   <div class="col">
     <table class="table">
       <thead>
@@ -102,7 +104,7 @@
             {% else %}
             <tr class="table-light">
             {% endif %}
-              <td rowspan="2" class="align-middle" style="width: 20vw;">{{ doc.name }} {% if doc.notes %} <i class="bi bi-sticky-fill" style="color: rgb(46, 148, 97);"></i>{% endif %}</td>
+              <td rowspan="2" class="align-middle" style="width: 20vw;">{{ doc.name }} {% if doc.notes %} <i class="bi bi-sticky-fill" style="color: rgb(46, 148, 97);" data-bs-html="true" data-bs-toggle="popover" data-bs-title="Notiz" data-bs-content="{{ doc.notes|linebreaksbr }}"></i>{% endif %}</td>
               <td>
                 {% for tag in doc.tags.all %}  
                 <span class="badge bg-secondary mt-1">{{ tag }}</span>
@@ -142,5 +144,32 @@
     {% endif %}
   </div>
 </div>
+
+<script>
+  const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
+  const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl))
+
+  function calculateHeight() {
+    // Get the viewport height
+    var viewportHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+
+    // Get the height of the upper div
+    var upperDivHeight = document.getElementById("upper").clientHeight;
+
+    // Calculate the height of the lower div
+    var lowerDivHeight = viewportHeight - upperDivHeight - 260;
+
+    // Set the height of the lower div
+    document.getElementById("lower").style.height = lowerDivHeight + "px";
+  }
+
+  // Add event listener for window resize
+  window.addEventListener('resize', function () {
+    calculateHeight();
+  });
+  
+  // call function on page load
+  calculateHeight();
+</script>
 
 {% endblock content %}
