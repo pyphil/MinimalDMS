@@ -82,7 +82,7 @@
 </form>
 </div>
 
-<div class="row mb-4" id="lower" style="overflow: scroll;">
+<div class="row" id="lower" style="overflow: scroll;">
   <div class="col">
     <table class="table">
       <thead>
@@ -110,10 +110,12 @@
                 <span class="badge bg-secondary mt-1">{{ tag }}</span>
                 {% endfor %}  
               </td>
-              {% if doc.status.status == "zu bearbeiten" %}
+              {% if doc.status.id == 2 %}
                 <td><div style="color: brown;"><i class="bi bi-circle"></i> {{ doc.status }}</div></td>
-              {% elif doc.status.status == "erledigt" %}
+              {% elif doc.status.id == 1 %}
                 <td><div style="color: rgb(22, 131, 87);"><i class="bi bi-check-circle"></i> {{ doc.status }}</div></td>
+              {% elif doc.status.id == 3 %}
+                <td><div style="color: rgb(227, 140, 0);"><i class="bi bi-alarm-fill"></i> {{ doc.status }}</div></td>
               {% else %}
                 <td>{{ doc.status }}</td>
               {% endif %}
@@ -157,7 +159,7 @@
     var upperDivHeight = document.getElementById("upper").clientHeight;
 
     // Calculate the height of the lower div
-    var lowerDivHeight = viewportHeight - upperDivHeight - 260;
+    var lowerDivHeight = viewportHeight - upperDivHeight - 245;
 
     // Set the height of the lower div
     document.getElementById("lower").style.height = lowerDivHeight + "px";
