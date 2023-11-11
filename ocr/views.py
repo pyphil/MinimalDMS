@@ -12,6 +12,7 @@ import datetime
 import shutil
 from uuid import uuid4
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
 
 def inbox(request):
@@ -77,6 +78,7 @@ def inbox_scaninput(request):
 
 def edit(request, id):
     obj = Document.objects.get(id=id)
+    tags = Tag.objects.all()
     oldfile = obj.file
     try:
         versions = Version.objects.filter(docid=id)
@@ -89,15 +91,6 @@ def edit(request, id):
         else:
             v = 0
 
-    if request.method == 'GET':
-        f = DocumentFormEdit(instance=obj)
-        return render(request, 'edit.html', {
-            'form': f,
-            'date': obj.date,
-            'filename': obj.filename,
-            'versions': versions,
-            }
-        )
     if request.method == 'POST':
         f = DocumentFormEdit(request.POST, request.FILES, instance=obj)
         if f.is_valid():
@@ -129,7 +122,22 @@ def edit(request, id):
             current_doctype = request.GET.get('current_doctype')
         if request.GET.get('search_text') != "None":
             search_text = request.GET.get('search_text')
-        return redirect(f"/?status={current_status}&search={search_text}&doctype={current_doctype}&submit=submit")
+        if request.GET.get('person') != "None":
+            person = request.GET.get('person')
+        checked_tags = ""
+        for i in tags:
+            if request.GET.get(i.tag) == "1":
+                checked_tags += f"&{i.tag}=1"
+        return redirect(f"/?status={current_status}&search={search_text}&doctype={current_doctype}&person={person}&submit=submit{checked_tags}")
+
+    f = DocumentFormEdit(instance=obj)
+    return render(request, 'edit.html', {
+        'form': f,
+        'date': obj.date,
+        'filename': obj.filename,
+        'versions': versions,
+        }
+    )
 
 
 def ocr_scan(filepath):
@@ -176,7 +184,7 @@ def archive(request):
                 Document.objects.filter(name__icontains=search_string) | 
                 Document.objects.filter(filename__icontains=search_string) | 
                 Document.objects.filter(notes__icontains=search_string)
-            ).order_by('docdate')
+            ).order_by('-docdate')
         checked_tags = []
         for i in tags:
             if request.GET.get(i.tag) == "1":
@@ -215,7 +223,7 @@ def archive(request):
     if request.GET.get('delete_search'):
         return redirect('archive')
     else:
-        docs = Document.objects.all().order_by('docdate')[:100]
+        docs = Document.objects.all().order_by('-docdate')[:100]
         hundred_or_more = None
         if len(docs) == 100:
             hundred_or_more = True
@@ -360,6 +368,7 @@ def persons(request):
     )
 
 
+@login_required
 def download(request, filefolder, filename):
     return FileResponse(
         open(settings.MEDIA_ROOT + '/data/' + filefolder + '/' + filename, 'rb'),
@@ -368,6 +377,7 @@ def download(request, filefolder, filename):
     )
 
 
+@login_required
 def download_inbox(request, file):
     return FileResponse(
         open(settings.MEDIA_ROOT + '/inbox/' + file, 'rb'),

@@ -1,4 +1,3 @@
-from cgitb import strong
 from django.forms import ModelForm
 from .models import Document, Tag, Doctype, Person
 from django import forms
