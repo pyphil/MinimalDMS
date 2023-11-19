@@ -8,7 +8,7 @@
 
 <h3><i class="bi bi-mailbox2">&ensp;</i>Inbox</h3>
 
-<form method="POST" enctype="multipart/form-data">
+<form method="POST" enctype="multipart/form-data" id="inbox_form">
   {% csrf_token %}
   <!-- {{ form.as_p }} -->
   <div class="row">
@@ -67,14 +67,21 @@
 </div>
 
 
-<script type="text/javascript">
+<script>
   function spinner() {
+    if (validateForm()) {
       document.getElementsByClassName("spinner")[0].style.display = "block";
+    }
   };
 
   function hide_spinner() {
       document.getElementsByClassName("spinner")[0].style.display = "none";
-  }
+  };
+
+  function validateForm() {
+          var form = document.getElementById('inbox_form');
+          return form.checkValidity();
+  };
 </script> 
 
 {% endblock content %}

@@ -95,7 +95,7 @@
             </div>
             {% if messages %}
                 {% for message in messages %}
-                    <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         <small>
                             {{ message|safe }}
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -105,7 +105,7 @@
             {% endif %}
             {% if files %}
                 {% for file in files %}
-                    <div class="alert alert-danger d-grid" role="alert">
+                    <div class="alert alert-info d-grid" role="alert">
                         <small><strong><i class="bi bi-alarm-fill"></i> Wiedervorlage</strong><br>
                         <i>vom {{ file.resubmission_date|date:"d.m.y" }}:</i><br>
                          <a class="btn btn-light btn-sm d-grid mt-2" href="/archive/{{ file.id }}?current_status=&current_doctype=&search_text=">{{ file.name }}</a></small>

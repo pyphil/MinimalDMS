@@ -8,7 +8,7 @@
 
 <h3><i class="bi bi-mailbox2">&ensp;</i>Inbox Scaninput</h3>
 
-<form method="POST">
+<form method="POST" id="inbox_form">
   {% csrf_token %}
   <p><strong>zu archivierende Datei: </strong><a class="text-break badge bg-success me-2" href="{% url 'download_inbox' file %}">{{ file }}</a></p>
   <!-- {{ form.as_p }} -->
@@ -40,7 +40,7 @@
   </div>
   <div class="row">
     <div class="col">
-      <label><strong>Tags</strong>:</label>{{ form.tags }}
+      <label><strong>Tags:</strong></label>{{ form.tags }}
     </div>
   </div>
  
@@ -60,14 +60,21 @@
 </div>
 
 
-<script type="text/javascript">
-function spinner() {
-    document.getElementsByClassName("spinner")[0].style.display = "block";
-};
+<script>
+  function spinner() {
+    if (validateForm()) {
+      document.getElementsByClassName("spinner")[0].style.display = "block";
+    }
+  };
 
-function hide_spinner() {
-    document.getElementsByClassName("spinner")[0].style.display = "none";
-}
+  function hide_spinner() {
+      document.getElementsByClassName("spinner")[0].style.display = "none";
+  };
+
+  function validateForm() {
+          var form = document.getElementById('inbox_form');
+          return form.checkValidity();
+  };
 </script> 
 
 {% endblock content %}

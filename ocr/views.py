@@ -2,7 +2,6 @@ from django.shortcuts import redirect, render
 import pytesseract
 from pdf2image import convert_from_path
 from pypdf import PdfReader, PdfWriter
-import io
 from .forms import DocumentForm, DocumentFormEdit, DocumentFormInput, TagForm, DoctypeForm, PersonForm
 from .models import Document, Version, Tag, Status, Doctype, Person
 from django.http import FileResponse
