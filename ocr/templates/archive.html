@@ -1,14 +1,15 @@
 {% extends 'base.html' %}  
 {% block content %}
+{% load i18n %}
 <style>
   .mycol {
     columns: 4;
   }
 </style>
 
-<h3><i class="bi bi-archive-fill"> </i>Archiv</h3>
+<h3><i class="bi bi-archive-fill"> </i>{% trans "Archive" %}</h3>
 
-<label for="search" class="form-label">Suche nach Text in den PDF-Dateien, in der Bemerkung, dem Dateinamen und in Notizen:</label>
+<label for="search" class="form-label">{% trans "Search for text in PDF files, remark, file name and notes:" %}</label>
 <div id="upper">
 <form>
   <div class="row">
@@ -16,7 +17,7 @@
       <input class="form-control form-control-lg" id="search" name="search" value="{{ search_text }}">
     </div>
     <div class="col-auto">
-      <button type="submit" name="submit" value="submit" class="btn btn-lg btn-primary"><i class="bi bi-search"></i>&nbsp;Suchen</button>
+      <button type="submit" name="submit" value="submit" class="btn btn-lg btn-primary"><i class="bi bi-search"></i>&nbsp;{% trans "Search" %}</button>
       <button type="submit" name="delete_search" value="delete_search" class="btn btn-lg btn-secondary" style="height: 48px;"><i class="bi bi-x-circle"></i></button>
     </div>
   </div>
@@ -24,7 +25,7 @@
     <div class="nav nav-tabs mt-2" id="nav-tab" role="tablist">
       <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true" onclick="calculateHeight();"><i class="bi bi-tags-fill"></i> Tags</button>
       <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-status" type="button" role="tab" aria-controls="nav-status" aria-selected="false" onclick="calculateHeight();"><i class="bi bi-stoplights-fill"></i> Status</button>
-      <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-doctype" type="button" role="tab" aria-controls="nav-doctype" aria-selected="false" onclick="calculateHeight();"><i class="bi bi-file-earmark-text-fill"></i> Dokumentenart</button>
+      <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-doctype" type="button" role="tab" aria-controls="nav-doctype" aria-selected="false" onclick="calculateHeight();"><i class="bi bi-file-earmark-text-fill"></i> {% trans "Document type" %}</button>
       <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-person" type="button" role="tab" aria-controls="nav-person" aria-selected="false" onclick="calculateHeight();"><i class="bi bi-person-vcard-fill"></i> Person</button>
     </div>
   </nav>
@@ -49,7 +50,7 @@
     <div class="tab-pane fade" id="nav-status" role="tabpanel" aria-labelledby="nav-status-tab">
       <div class="col mt-2 ms-2">
         <input class="form-check-input" type="radio" name="status" value="" id="None" {% if not stat.status %}checked{% endif %}>
-        <label class="form-check-label" for="None">Alle</label>
+        <label class="form-check-label" for="None">{% trans "All" %}</label>
       </div>
       {% for stat in status_options %}
         <div class="col mt-2 ms-2">
@@ -87,11 +88,11 @@
     <table class="table">
       <thead>
         <tr>
-          <th scope="col" style="width: 20vw;">Bemerkung</th>
+          <th scope="col" style="width: 20vw;">{% trans "Remark" %}</th>
           <th scope="col">Tags</th>
           <th scope="col">Status</th>
-          <th scope="col">Datum</th>
-          <th scope="col">Art</th>
+          <th scope="col">{% trans "Date" %}</th>
+          <th scope="col">{% trans "Type" %}</th>
           <th scope="col"></th>
         </tr>
       </thead>
@@ -141,7 +142,7 @@
     </table>
     {% if hundred_or_more %}
       <div class="text-center">
-        <p><em>Es werden die ersten 100 Einträge angezeigt. Passe deine Suche an, um weitere Einträge zu anzuzeigen.</em></p>
+        <p><em>{% trans "The first 100 entries are shown. Customize your search to show more entries." %}</em></p>
       </div>
     {% endif %}
   </div>
