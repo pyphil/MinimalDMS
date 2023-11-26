@@ -13,6 +13,27 @@ import shutil
 from uuid import uuid4
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from threading import Thread
+
+
+class OCRThread(Thread):
+    def __init__(self, instance, request):
+        super(OCRThread, self).__init__()
+        self.instance = instance
+        self.request = request
+
+    def run(self):
+        messages.error(self.request, f'<i class="bi bi-exclamation-triangle-fill"></i> <b>{self.instance.name}</b> wird im Hintergrund verarbeitet.')
+        self.instance.filename = self.instance.file.name.split('/')[2]
+        self.instance.filefolder = self.instance.file.name.split('/')[1]
+        text, error = ocr_scan(self.instance.file.path)
+        self.instance.text = text
+        if not error:
+            self.instance.save()
+        else:
+            self.instance.delete()
+            # fail silently at the moment
+            # messages.error(self.request, f'<i class="bi bi-exclamation-triangle-fill"></i> Beim Speichern von <b>{self.instance.name}</b> ist ein Fehler aufgetreten. Es handelt sich nicht um eine lesbare PDF-Datei.')
 
 
 def inbox(request):
@@ -25,16 +46,9 @@ def inbox(request):
         if f.is_valid():
             f.save()
             instance = f.save(commit=False)
-            instance.filename = instance.file.name.split('/')[2]
-            instance.filefolder = instance.file.name.split('/')[1]
-            text, error = ocr_scan(instance.file.path)
-            instance.text = text
-            if not error:
-                instance.save()
-                return redirect('archive')
-            else:
-                instance.delete()
-                messages.error(request, f'<i class="bi bi-exclamation-triangle-fill"></i> Beim Speichern von <b>{instance.name}</b> ist ein Fehler aufgetreten. Es handelt sich nicht um eine lesbare PDF-Datei.')
+            thread = OCRThread(instance, request)
+            thread.start()
+            return redirect('archive')
 
     return render(request, 'inbox.html', {'form': f, 'inbox_files': inbox_files})
 
