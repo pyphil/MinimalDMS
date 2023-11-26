@@ -7,6 +7,7 @@ from .models import Document, Version, Tag, Status, Doctype, Person
 from django.http import FileResponse
 from django.conf import settings
 import os
+from io import BytesIO
 import datetime
 import shutil
 from uuid import uuid4
@@ -155,12 +156,12 @@ def ocr_scan(filepath):
         if text == "":
             for image in images:
                 page = pytesseract.image_to_pdf_or_hocr(image, lang="deu", extension='pdf')
-                pdf = PdfReader(io.BytesIO(page))
+                pdf = PdfReader(BytesIO(page))
                 text += pytesseract.image_to_string(image, lang="deu")
                 writer.add_page(pdf.pages[0])
-                # export pdf to same filename as searchable pdf if only image
-                with open(filepath, 'wb') as f:
-                    writer.write(f)
+            # export pdf to same filename as searchable pdf if only image
+            with open(filepath, 'wb') as f:
+                writer.write(f)
         else:
             for image in images:
                 text += pytesseract.image_to_string(image, lang="deu")
@@ -175,7 +176,9 @@ def archive(request):
     status_options = Status.objects.all()
     doctypes = Doctype.objects.all()
     persons = Person.objects.all()
-    if request.GET.get('submit'):
+    if request.GET.get('delete_search'):
+        return redirect('archive')
+    if request.GET.get('form_submitted'):
         search_strings = request.GET.get('search').split(" ")
         for search_string in search_strings:
             docs = (
@@ -219,8 +222,6 @@ def archive(request):
             'hundred_or_more': hundred_or_more,
             }
         )
-    if request.GET.get('delete_search'):
-        return redirect('archive')
     else:
         docs = Document.objects.all().order_by('-docdate')[:100]
         hundred_or_more = None
